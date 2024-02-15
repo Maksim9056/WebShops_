@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using System;
 
 namespace WebShops_
@@ -12,13 +13,86 @@ namespace WebShops_
             builder.Services.AddRazorPages();
 
             var app = builder.Build();
+
             Operations.Operations work = new Operations.Operations();
             work.Start();
 
             work.Add();
             bool d = false;
+            app.UseStaticFiles(); // Добавляем middleware для обслуживания статических файлов из папки wwwroot
 
-    
+            // Отправка файла index.html
+            //app.Map("/index.html", appBuilder =>
+            //{
+            //    appBuilder.Run(async context =>
+            //    {
+            //        // Read the index.html file and return its content
+            //        var indexHtmlContent = System.IO.File.ReadAllText("wwwroot/html/index.html");
+            //        context.Response.ContentType = "text/html";
+            //        await context.Response.WriteAsync(indexHtmlContent);
+            //    });
+            //});
+            app.MapWhen(context => context.Request.Path.StartsWithSegments("/"), appBuilder =>
+            {
+                appBuilder.Run(async (context) =>
+                {
+                    var stringBuilder = new System.Text.StringBuilder();
+                    bool isPostRequest = context.Request.Method == "POST";
+                    var indexHtmlContent = System.IO.File.ReadAllText("wwwroot/html/index.html");
+                    // Паттерн для поиска placeholder в таблице
+                    var pattern = "<!-- Вставляем данные о книгах с помощью C# кода -->";
+
+                    // Создаем массив строк, разделяя содержимое файла по placeholder
+                    var parts = indexHtmlContent.Split(new[] { pattern }, StringSplitOptions.None);
+                    if (!isPostRequest)
+                    {
+                        stringBuilder.Append($"{parts[0]}");
+
+                        // Отображение списка всех книг
+
+                        var allBooks = work.SelectBook();
+                        foreach (var book in allBooks)
+                        {
+                            stringBuilder.Append($"<tr><td>{book.Id}</td><td><a href=\"/book/{book.Id}\">{book.Name}</a>><td>{book.Author}</td><td>{book.Year_of_publication}</td></tr>");
+                        }
+
+                        // Заменяем placeholder на данные о книгах в HTML-коде index.html
+                        stringBuilder.Append($"{parts[1]}");
+                        // Обновленный HTML-код с данными о книгах
+                    }
+                    else
+                    {
+                        var form = await context.Request.ReadFormAsync();
+                        var author = form["author"];
+                        var name = form["name"];
+                        var date = form["date"];
+                        var id = form["id"];
+
+                        // Применяем фильтры к вашим данным (например, списку книг)
+                        var filteredBooks = work.SelectBook().Where(book =>
+                            (string.IsNullOrEmpty(author) || book.Author.Contains(author)) &&
+                            (string.IsNullOrEmpty(name) || book.Name.Contains(name)) &&
+                            (string.IsNullOrEmpty(date) || book.Year_of_publication.ToString().Contains(date)) &&
+                            (string.IsNullOrEmpty(id) || book.Id.ToString().Contains(id))
+                        );
+                        stringBuilder.Append($"{parts[0]}");
+
+                        // Отображаем результаты фильтрации
+                        foreach (var book in filteredBooks)
+                        {
+                            stringBuilder.Append($"<tr><td>{book.Id}</td><td><a href=\"/book/{book.Id}\">{book.Name}</a><td>{book.Author}</td><td>{book.Year_of_publication}</td></tr>");
+                        }
+                        stringBuilder.Append($"{parts[1]}");
+
+                        //stringBuilder.Append("</table>");
+                        //stringBuilder.Append("</div>");
+                        //stringBuilder.Append("</div>");
+                    }
+
+                    context.Response.ContentType = "text/html; charset=utf-8"; // Установка правильной кодировки
+                    await context.Response.WriteAsync(stringBuilder.ToString());
+                });
+            });
             // Обработка запроса, если URL начинается с "/book/"
             app.MapWhen(context => context.Request.Path.StartsWithSegments("/book"), appBuilder =>
             {
@@ -98,7 +172,10 @@ namespace WebShops_
                       if (context.Request.Method == "POST" && context.Request.Form.ContainsKey("buyButton"))
                       {
                           // Получаем данные из формы
+
                           var bookId = context.Request.Form["bookId"];
+
+                          work.DeletyBookFirstId(Convert.ToInt32(id));
                           context.Response.StatusCode = 200;
                           context.Response.ContentType = "text/html; charset=utf-8"; // Установка правильной кодировки
                           // Устанавливаем заголовок перенаправления
@@ -120,166 +197,62 @@ namespace WebShops_
             });
 
 
-            app.MapWhen(context => context.Request.Path.StartsWithSegments("/"), appBuilder =>
-            {
+            //app.MapWhen(context => context.Request.Path.StartsWithSegments("/"), appBuilder =>
+            //{
+            //    appBuilder.Run(async (context) =>
+            //    {
+            //        var stringBuilder = new System.Text.StringBuilder();
+            //        bool isPostRequest = context.Request.Method == "POST";
 
-                app.Run(async (context) =>
-                {
-                    var stringBuilder = new System.Text.StringBuilder();
-                    d = true;
-                    //app.MapGet("/book/{id:int}", async (HttpContext context, int id) =>
-                    //{
-                    //    // Здесь вы можете добавить логику для получения данных о книге с указанным id
-                    //    // Затем возвращайте соответствующий ответ в зависимости от вашей логики
+            //        if (!isPostRequest)
+            //        {
+            //            // Отображение списка всех книг
+            //            stringBuilder.Append("<h2>All Books</h2>");
+            //            stringBuilder.Append("<ul>");
 
-                    //    // Пример:
-                    //    var book = work.SelectBookFirstId(id);
-                    //    if (book == null)
-                    //    {
-                    //        d = true;
-                    //        context.Response.StatusCode = 404;
-                    //        await context.Response.WriteAsync("Book not found");
-                    //        return;
-                    //    }
+            //            var allBooks = work.SelectBook();
+            //            foreach (var book in allBooks)
+            //            {
+            //                stringBuilder.Append($"<li>{book.Name} by {book.Author}</li>");
+            //            }
 
-                    //    context.Response.StatusCode = 200;
-                    //    await context.Response.WriteAsJsonAsync(book); // Предположим, что book это объект книги
-                    //});
+            //            stringBuilder.Append("</ul>");
+            //        }
+            //        else
+            //        {
+            //            var form = await context.Request.ReadFormAsync();
+            //            var author = form["author"];
+            //            var name = form["name"];
+            //            var date = form["date"];
+            //            var id = form["id"];
 
-                    // Если это не POST-запрос (не отправлена форма), то отображаем список всех книг
-                    if (context.Request.Method != "POST")
-                    {
-                        //app.MapGet("/book/{id}", async (HttpContext context) =>
-                        //{
-                        //    var idString = context.Request.RouteValues["id"]?.ToString();
-                        //    if (int.TryParse(idString, out int id))
-                        //    {
-                        //        // Перенаправляем на маршрут с числовым id
-                        //        context.Response.Redirect($"/book/{id}");
-                        //    }
-                        //    else
-                        //    {
-                        //        context.Response.StatusCode = 400;
-                        //        await context.Response.WriteAsync("Invalid book ID");
-                        //    }
-                        //});
+            //            // Применяем фильтры к вашим данным (например, списку книг)
+            //            var filteredBooks = work.SelectBook().Where(book =>
+            //                (string.IsNullOrEmpty(author) || book.Author.Contains(author)) &&
+            //                (string.IsNullOrEmpty(name) || book.Name.Contains(name)) &&
+            //                (string.IsNullOrEmpty(date) || book.Year_of_publication.ToString().Contains(date)) &&
+            //                (string.IsNullOrEmpty(id) || book.Id.ToString().Contains(id))
+            //            );
 
-                        // CSS стили для центрирования и размера таблицы
-                        stringBuilder.Append("<style>");
-                        stringBuilder.Append(".container { display: flex; flex-wrap: wrap; justify-content: space-between; }"); // Flexbox контейнер
-                        stringBuilder.Append(".table-container { flex-basis: 40%; overflow: auto; }"); // Ширина таблицы 100%, добавлен скролл
-                        stringBuilder.Append(".form-container { flex-basis: 40%; }"); // Ширина формы 100%
-                        stringBuilder.Append("table { width: 90%; border-collapse: collapse; }"); // Ширина таблицы 100% и объединение границ
-                        stringBuilder.Append("table, th, td { border: 1px solid black; padding: 8px; }"); // Границы и отступы для ячеек и заголовков
-                        stringBuilder.Append(".center { text-align: center; }"); // Центрирование текста
-                        stringBuilder.Append("@media (max-width: 768px) {"); // Медиа-запрос для экранов шириной до 768px
-                        stringBuilder.Append(".container, .form-container { flex-direction: column; align-items: stretch; }"); // Один столбец
-                        stringBuilder.Append(".table-container, .form-container { flex-basis: auto; margin-bottom: 20px; }"); // Автоматическая ширина
-                        stringBuilder.Append(".form-container > div { flex-basis: 20%; margin-bottom: 10px; }"); // Увеличиваем ширину элементов формы и добавляем отступ
-                        stringBuilder.Append("}");
-                        stringBuilder.Append("</style>");
+            //            // Отображаем результаты фильтрации
+            //            stringBuilder.Append("<div class=\"container\">");
+            //            stringBuilder.Append("<div class=\"table-container\">");
+            //            stringBuilder.Append("<h2 class=\"center\">Filtered Results</h2>");
+            //            stringBuilder.Append("<table>");
+            //            stringBuilder.Append("<tr><th>ID</th><th>Name</th><th>Author</th><th>Year of Publication</th></tr>");
+            //            foreach (var book in filteredBooks)
+            //            {
+            //                stringBuilder.Append($"<tr><td>{book.Id}</td><td>{book.Name}</td><td>{book.Author}</td><td>{book.Year_of_publication}</td></tr>");
+            //            }
+            //            stringBuilder.Append("</table>");
+            //            stringBuilder.Append("</div>");
+            //            stringBuilder.Append("</div>");
+            //        }
 
-
-                        // Обертка для контейнера
-                        stringBuilder.Append("<div class=\"container\">");
-
-                        // Обертка для таблицы с книгами
-                        stringBuilder.Append("<div class=\"table-container\">");
-
-                        // Название "All Books"
-                        stringBuilder.Append("<h2 class=\"center\">All Books</h2>");
-
-                        // Таблица с книгами
-                        stringBuilder.Append("<table>");
-
-                        var allBooks = work.SelectBook();
-                        foreach (var book in allBooks)
-                        {
-                            stringBuilder.Append($"<tr><td>{book.Id}</td><td><a href=\"/book/{book.Id}\">{book.Name}</a>></td><td>{book.Author}</td><td>{book.Year_of_publication}</td></tr>");
-                        }
-                        stringBuilder.Append("</table>");
-
-                        // Закрываем обертку для таблицы
-                        stringBuilder.Append("</div>");
-
-                        // Обертка для формы фильтрации
-                        stringBuilder.Append("<div class=\"form-container\">");
-                    }
-                    else // Если была отправлена форма (POST-запрос), закрываем обертку для таблицы и начинаем форму фильтрации
-                    {
-
-
-                        var form = await context.Request.ReadFormAsync();
-                        var author = form["author"];
-                        var name = form["name"];
-                        var date = form["date"];
-                        var id = form["id"];
-                        // Фильтрация записей по значениям фильтра
-                        var filteredBooks = work.SelectBook().Where(book =>
-                            (string.IsNullOrEmpty(author) || book.Author.Contains(author)) &&
-                            (string.IsNullOrEmpty(name) || book.Name.Contains(name)) &&
-                            (string.IsNullOrEmpty(date) || book.Year_of_publication.ToString().Contains(date)) &&
-                            (string.IsNullOrEmpty(id) || book.Id.ToString().Contains(id))
-                        );
-                        stringBuilder.Append("<style>");
-                        stringBuilder.Append("table { width: 30%; border-collapse: collapse; font-size: 0.8em; }"); // Уменьшение размера шрифта и объединение границ
-                        stringBuilder.Append("th, td { border: 1px solid black; padding: 5px; }"); // Границы и отступы для ячеек и заголовков
-                        stringBuilder.Append("</style>");
-
-                        stringBuilder.Append("<h2 style=\"text-align: center;\">Filtered Results</h2>"); // Применение стиля для заголовка
-                        stringBuilder.Append("<table>"); // Применение стилей для таблицы
-                        stringBuilder.Append("<tr><th>ID</th><th>Name</th><th>Author</th><th>Year of Publication</th></tr>"); // Заголовки столбцов
-                        foreach (var book in filteredBooks)
-                        {
-                            stringBuilder.Append($"<tr><td>{book.Id}</td><td><a href=\"/book/{book.Id}\">{book.Name}</a></td><td>{book.Author}</td><td>{book.Year_of_publication}</td></tr>");
-                        }
-                        stringBuilder.Append("</table>");
-                        stringBuilder.Append("</div>");
-
-
-                    }
-                    // Форма фильтрации
-                    stringBuilder.Append("<div style=\"background-color: #f9f9f9; border: 1px solid #ddd; padding: 5px; border-radius: 5px; margin-bottom: 5px;\">"); // Изменены значения padding и margin
-                    stringBuilder.Append("<h3 style=\"text-align: center; margin-bottom: 5px;\">Фильтр</h3>"); // Изменено значение margin-bottom
-                    stringBuilder.Append("<form method=\"post\" action=\"/\">");
-                    stringBuilder.Append("<div style=\"display: flex; flex-wrap: wrap; justify-content: space-between;\">");
-                    stringBuilder.Append("<div style=\"flex-basis: calc(100% - 2.5px); margin-bottom: 5px;\">"); // Изменены значения flex-basis и margin-bottom
-                    stringBuilder.Append("<label for=\"author\">Автор:</label>");
-                    stringBuilder.Append("<input type=\"text\" id=\"author\" name=\"author\" style=\"width: calc(100% - 22px);\"><br>");
-                    stringBuilder.Append("</div>");
-                    stringBuilder.Append("<div style=\"flex-basis: calc(100% - 2.5px); margin-bottom: 5px;\">"); // Изменены значения flex-basis и margin-bottom
-                    stringBuilder.Append("<label for=\"name\">Название:</label>");
-                    stringBuilder.Append("<input type=\"text\" id=\"name\" name=\"name\" style=\"width: calc(100% - 22px);\"><br>");
-                    stringBuilder.Append("</div>");
-                    stringBuilder.Append("<div style=\"flex-basis: calc(100% - 2.5px); margin-bottom: 5px;\">"); // Изменены значения flex-basis и margin-bottom
-                    stringBuilder.Append("<label for=\"date\">Дата:</label>");
-                    stringBuilder.Append("<input type=\"text\" id=\"date\" name=\"date\" style=\"width: calc(100% - 22px);\"><br>");
-                    stringBuilder.Append("</div>");
-                    stringBuilder.Append("<div style=\"flex-basis: calc(100% - 2.5px); margin-bottom: 5px;\">"); // Изменены значения flex-basis и margin-bottom
-                    stringBuilder.Append("<label for=\"id\">ID:</label>");
-                    stringBuilder.Append("<input type=\"text\" id=\"id\" name=\"id\" style=\"width: calc(100% - 22px);\"><br>");
-                    stringBuilder.Append("</div>");
-                    stringBuilder.Append("</div>");
-                    stringBuilder.Append("<button type=\"submit\" style=\"background-color: #4CAF50; color: white; padding: 5px 7.5px; border: none; border-radius: 4px; cursor: pointer; width: 40%;\">Применить</button>"); // Изменены значения padding
-                    stringBuilder.Append("</form>");
-                    // Кнопка "Показать все"
-                    stringBuilder.Append("<form method=\"get\" action=\"/\">");
-                    stringBuilder.Append("<button type=\"submit\" style=\"background-color: #f44336; color: white; padding: 5px 7.5px; border: none; border-radius: 4px; cursor: pointer; margin-top: 5px; width: 40%;\">Показать все</button>"); // Изменены значения padding и margin-top
-                    stringBuilder.Append("</form>");
-                    stringBuilder.Append("</div>");
-
-
-
-
-                    if (context.Request.Method != "POST")
-                    {
-                        stringBuilder.Append("</div>"); // Закрываем обертку для контейнера
-                    }
-
-                    context.Response.ContentType = "text/html; charset=utf-8"; // Установка правильной кодировки
-                    await context.Response.WriteAsync(stringBuilder.ToString());
-                });
-            });
+            //        context.Response.ContentType = "text/html; charset=utf-8"; // Установка правильной кодировки
+            //        await context.Response.WriteAsync(stringBuilder.ToString());
+            //    });
+            //});
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())

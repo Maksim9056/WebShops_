@@ -1,0 +1,100 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Books</title>
+    <style>
+        /* CSS стили из C# кода */
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .table-container {
+            flex-basis: 40%;
+            overflow: auto;
+        }
+
+        .form-container {
+            flex-basis: 40%;
+        }
+
+        table {
+            width: 90%;
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+            padding: 8px;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .container, .form-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .table-container, .form-container {
+                flex-basis: auto;
+                margin-bottom: 20px;
+            }
+
+                .form-container > div {
+                    flex-basis: 20%;
+                    margin-bottom: 10px;
+                }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="table-container">
+            <h2 class="center">All Books</h2>
+            <table>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Author</th>
+                    <th>Year of Publication</th>
+                </tr>
+                <!-- Вставляем данные о книгах с помощью C# кода -->
+            </table>
+        </div>
+        <div class="form-container">
+            <div style="background-color: #f9f9f9; border: 1px solid #ddd; padding: 5px; border-radius: 5px; margin-bottom: 5px;">
+                <h3 style="text-align: center; margin-bottom: 5px;">Фильтр</h3>
+                <form method="post" action="/">
+                    <div style="display: flex; flex-wrap: wrap; justify-content: space-between;">
+                        <div style="flex-basis: calc(100% - 2.5px); margin-bottom: 5px;">
+                            <label for="author">Автор:</label>
+                            <input type="text" id="author" name="author" style="width: calc(100% - 22px);"><br>
+                        </div>
+                        <div style="flex-basis: calc(100% - 2.5px); margin-bottom: 5px;">
+                            <label for="name">Название:</label>
+                            <input type="text" id="name" name="name" style="width: calc(100% - 22px);"><br>
+                        </div>
+                        <div style="flex-basis: calc(100% - 2.5px); margin-bottom: 5px;">
+                            <label for="date">Дата:</label>
+                            <input type="text" id="date" name="date" style="width: calc(100% - 22px);"><br>
+                        </div>
+                        <div style="flex-basis: calc(100% - 2.5px); margin-bottom: 5px;">
+                            <label for="id">ID:</label>
+                            <input type="text" id="id" name="id" style="width: calc(100% - 22px);"><br>
+                        </div>
+                    </div>
+                    <button type="submit" style="background-color: #4CAF50; color: white; padding: 5px 7.5px; border: none; border-radius: 4px; cursor: pointer; width: 40%;">Применить</button>
+                    <button type="submit" style="background-color: #f44336; color: white; padding: 5px 7.5px; border: none; border-radius: 4px; cursor: pointer; margin-top: 5px; width: 40%;">Показать все</button>"
+                </form>
+            </div>
+            <!-- Вставляем результаты фильтрации с помощью C# кода -->
+        </div>
+    </div>
+</body>
+</html>

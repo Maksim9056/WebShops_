@@ -145,5 +145,27 @@ namespace WebShops_.Operations
             }
             return book;
         }
+        public Book DeletyBookFirstId(int id)
+        {
+            Book book = null;
+            try
+            {
+
+                using (WorkForData data = new WorkForData())
+                {
+                    book = data.Book.FirstOrDefault(u => u.Id == id);
+
+                     data.Book.Remove(book);
+                    data.SaveChanges();
+
+                }
+                return book;
+            }
+            catch (Exception)
+            {
+
+            }
+            return book;
+        }
     }
 }
