@@ -1,6 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using System;
-
+using Library.LibraryClass.Book;
+using Data.Data;
+using System.Configuration;
+using Microsoft.Extensions.Options;
 namespace WebShops_
 {
     public class Program
@@ -11,7 +14,9 @@ namespace WebShops_
 
             // Add services to the container.
             builder.Services.AddRazorPages();
-
+            builder.Services.AddControllers(); // Добавление сервисов для контроллеров API          
+            builder.Services.AddDbContext<WorkForData>(options =>
+             options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
             var app = builder.Build();
 
             Operations.Operations work = new Operations.Operations();
@@ -268,6 +273,7 @@ namespace WebShops_
             app.UseRouting();
 
             app.UseAuthorization();
+            app.MapControllers(); // Добавление маршрутов для контроллеров API
 
             app.MapRazorPages();
 

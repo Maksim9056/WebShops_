@@ -11,6 +11,10 @@ namespace Data.Data
 {
     public class WorkForData:DbContext
     {
+        public WorkForData(DbContextOptions<WorkForData> options) : base(options)
+        {
+        }
+
         public DbSet<Book> Book { get; set; } = null!;
 
         public WorkForData()
