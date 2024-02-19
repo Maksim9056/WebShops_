@@ -58,7 +58,6 @@ namespace WebShops_.Operations
                     {
 
                     }
-
                 }
             }
             catch (Exception)
@@ -76,11 +75,8 @@ namespace WebShops_.Operations
         private List<Book> CreateBook()
         {
             List<Book> list = new List<Book>();
-
             try
             {
-
-
                 Book book = new Book(0, "Мартин", "ВЫСОКО-НАГРУЖЕННЫЕ ПРИЛОЖЕНИЯ", "2022");
                 Book book1 = new Book(0, "Countre", ".Selenium.WebDriver.Recipes in C#", "2024");
                 Book book2 = new Book(0, "Jonathan", "ASP.NET 8 Best Practices", "2023");
@@ -91,7 +87,6 @@ namespace WebShops_.Operations
                 Book book7 = new Book(0, "Jason Alls", "Clean Code in C#", "2020");
                 Book book8 = new Book(0, "James Charlesworth", "Developing on  AWS with C#", "2023");
                 Book book9 = new Book(0, "Valerio De Sanctis", "Building Web APIs with ASP.NET Core", "2023");
-
                 list.Add(book);
                 list.Add(book1);
                 list.Add(book2);
