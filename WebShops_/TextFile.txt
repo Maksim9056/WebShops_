@@ -1,0 +1,69 @@
+﻿
+            //app.MapWhen(context => context.Request.Path.StartsWithSegments("/"), appBuilder =>
+            //{
+            //    appBuilder.Run(async (context) =>
+            //    {
+            //        var stringBuilder = new System.Text.StringBuilder();
+            //        bool isPostRequest = context.Request.Method == "POST";
+
+            //        if (!isPostRequest)
+            //        {
+            //            // Отображение списка всех книг
+            //            stringBuilder.Append("<h2>All Books</h2>");
+            //            stringBuilder.Append("<ul>");
+
+            //            var allBooks = work.SelectBook();
+            //            foreach (var book in allBooks)
+            //            {
+            //                stringBuilder.Append($"<li>{book.Name} by {book.Author}</li>");
+            //            }
+
+            //            stringBuilder.Append("</ul>");
+            //        }
+            //        else
+            //        {
+            //            var form = await context.Request.ReadFormAsync();
+            //            var author = form["author"];
+            //            var name = form["name"];
+            //            var date = form["date"];
+            //            var id = form["id"];
+
+            //            // Применяем фильтры к вашим данным (например, списку книг)
+            //            var filteredBooks = work.SelectBook().Where(book =>
+            //                (string.IsNullOrEmpty(author) || book.Author.Contains(author)) &&
+            //                (string.IsNullOrEmpty(name) || book.Name.Contains(name)) &&
+            //                (string.IsNullOrEmpty(date) || book.Year_of_publication.ToString().Contains(date)) &&
+            //                (string.IsNullOrEmpty(id) || book.Id.ToString().Contains(id))
+            //            );
+
+            //            // Отображаем результаты фильтрации
+            //            stringBuilder.Append("<div class=\"container\">");
+            //            stringBuilder.Append("<div class=\"table-container\">");
+            //            stringBuilder.Append("<h2 class=\"center\">Filtered Results</h2>");
+            //            stringBuilder.Append("<table>");
+            //            stringBuilder.Append("<tr><th>ID</th><th>Name</th><th>Author</th><th>Year of Publication</th></tr>");
+            //            foreach (var book in filteredBooks)
+            //            {
+            //                stringBuilder.Append($"<tr><td>{book.Id}</td><td>{book.Name}</td><td>{book.Author}</td><td>{book.Year_of_publication}</td></tr>");
+            //            }
+            //            stringBuilder.Append("</table>");
+            //            stringBuilder.Append("</div>");
+            //            stringBuilder.Append("</div>");
+            //        }
+
+            //        context.Response.ContentType = "text/html; charset=utf-8"; // Установка правильной кодировки
+            //        await context.Response.WriteAsync(stringBuilder.ToString());
+            //    });
+            //});
+
+            // Отправка файла index.html
+            //app.Map("/index.html", appBuilder =>
+            //{
+            //    appBuilder.Run(async context =>
+            //    {
+            //        // Read the index.html file and return its content
+            //        var indexHtmlContent = System.IO.File.ReadAllText("wwwroot/html/index.html");
+            //        context.Response.ContentType = "text/html";
+            //        await context.Response.WriteAsync(indexHtmlContent);
+            //    });
+            //});
