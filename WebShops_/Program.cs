@@ -37,6 +37,7 @@ namespace WebShops_
             //        await context.Response.WriteAsync(indexHtmlContent);
             //    });
             //});
+
             app.MapWhen(context => context.Request.Path.StartsWithSegments("/"), appBuilder =>
             {
                 appBuilder.Run(async (context) =>
