@@ -33,6 +33,7 @@ namespace Data.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+
             optionsBuilder.UseSqlite("Data Source=helloapp.db");
 
         }

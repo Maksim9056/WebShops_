@@ -81,9 +81,6 @@ namespace WebShops_
                         }
                         stringBuilder.Append($"{parts[1]}");
 
-                        //stringBuilder.Append("</table>");
-                        //stringBuilder.Append("</div>");
-                        //stringBuilder.Append("</div>");
                     }
 
                     context.Response.ContentType = "text/html; charset=utf-8"; // Установка правильной кодировки

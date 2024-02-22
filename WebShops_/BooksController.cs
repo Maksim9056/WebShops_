@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Data.Data; // Предположим, что WorkForData находится в этом пространстве имен
+using Data.Data; 
 using Library.LibraryClass.Book;
 
 namespace WebShops_

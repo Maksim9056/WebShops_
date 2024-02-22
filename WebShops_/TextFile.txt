@@ -67,3 +67,7 @@
             //        await context.Response.WriteAsync(indexHtmlContent);
             //    });
             //});
+            
+                        //stringBuilder.Append("</table>");
+                        //stringBuilder.Append("</div>");
+                        //stringBuilder.Append("</div>");
